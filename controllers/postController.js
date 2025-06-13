@@ -1,21 +1,35 @@
-const blog = require('../data/db.js');
+const connection = require('../data/db.js');
+
+
 
 const index = (req, res) => {
-    let filteredPosts = posts;
+    // let filteredPosts = posts;
 
-    if(req.queryFake.titolo) {
-        filteredPosts = posts.filter(post => post.titolo.includes(req.query.titolo));
-    };
+    // if(req.queryFake.titolo) {
+    //     filteredPosts = posts.filter(post => post.titolo.includes(req.query.titolo));
+    // };
 
-    if(req.query.tags) {
-    filteredPosts = posts.filter(post => post.tags.includes(req.query.tags));
-    };
+    // if(req.query.tags) {
+    // filteredPosts = posts.filter(post => post.tags.includes(req.query.tags));
+    // };
 
-    if(req.query.contenuto) {
-    filteredPosts = posts.filter(post => post.contenuto.includes(req.query.contenuto));
-    };
+    // if(req.query.contenuto) {
+    // filteredPosts = posts.filter(post => post.contenuto.includes(req.query.contenuto));
+    // };
 
-    res.json(filteredPosts);
+    // res.json(filteredPosts);
+
+    // !________________________________________________________________________________________
+
+    const sql = `
+      SELECT * 
+        FROM posts;
+    `;
+
+    connection.query(sql, (err, results) => {
+        if (err) return res.status(500).json({err: "Database query failed"});
+        res.json(results);
+    });
 };
 
 const show = (req, res) => {
@@ -85,22 +99,37 @@ const modify = (req, res) => {
 };
 
 const destroy  = (req, res) => {
-    const id = parseInt(req.params.id);
+    // const id = parseInt(req.params.id);
 
-    const post = posts.find(post => post.id === id);
+    // const post = posts.find(post => post.id === id);
 
-    if(post === undefined) {
-    res.status(404);
-    res.json({
-        message: 'Nessun post trovato'
-    })
-    return;
-    } 
+    // if(post === undefined) {
+    // res.status(404);
+    // res.json({
+    //     message: 'Nessun post trovato'
+    // })
+    // return;
+    // } 
 
-    posts.splice(posts.indexOf(post), 1);
-    res.sendStatus(204);
+    // posts.splice(posts.indexOf(post), 1);
+    // res.sendStatus(204);
 
-    console.log(posts);
+    // console.log(posts);
+
+    // !________________________________________________________________________________________
+    const postId = parseInt(req.params.id);
+
+    const sql = `
+      DELETE 
+        FROM posts
+          WHERE posts.id = ?;
+          `;
+
+    connection.query(sql, [postId], (err, results) => {
+      if (err)
+        return res.status(500).json({ err: "Database query failed" });
+        res.status(204);
+    });
 };
 
 module.exports = {index, show, store, update, modify, destroy};
