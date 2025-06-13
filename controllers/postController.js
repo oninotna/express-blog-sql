@@ -33,11 +33,42 @@ const index = (req, res) => {
 };
 
 const show = (req, res) => {
-    const id = parseInt(req.params.id);
+    // const id = parseInt(req.params.id);
 
-    const post = posts.find(post => post.id === id);
+    // const post = posts.find(post => post.id === id);
     
-    res.json(post);
+    // res.json(post);
+
+    // !_______________________________________________________________________________________
+
+    const postId = parseInt(req.params.id);
+
+    const sql = `
+    SELECT *
+    FROM posts
+    WHERE posts.id = ?;
+    `;
+
+    const tagsSql = `
+    SELECT DISTINCT tags.label
+    FROM tags
+    INNER JOIN post_tag
+    ON tags.id = post_tag.tag_id
+    WHERE post_tag.post_id = ?;
+    `;
+
+    connection.query(sql, [postId], (err,postResults) => {
+        if (err) return res.status(500).json({err: "Database query failed"});
+        if (!postResults.length) res.json("Post not found");
+
+        const post = postResults[0];
+
+            connection.query(tagsSql, [postId], (err, tagsResults) => {
+                if (err) return res.status(500).json({err: "Database query failed"});
+                post.tags = tagsResults.map(tagObj => (tagObj.label));
+                res.json(post);
+            });
+    });
 };
 
 const store = (req, res) => {
